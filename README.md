@@ -1,5 +1,7 @@
 # RWA Launchpad Bolivia Stellar Soroban Bootcamp
 
+> **Entrega semana 4 (Stellar Elite Bolivia):** regla de inversión mínima de 500 (`AmountTooLow`) en `dia-3/`, desplegada en testnet como `CACCOKUX3J426XD745IGWDM4BI7KEBK65QQZD2ALE4OGNP6X5OMLEKMR`. Detalle, transacciones y cómo correr el flujo en [`dia-3/ENTREGA.md`](dia-3/ENTREGA.md).
+
 Hands-on starter repository for the Oppia Education Bolivia bootcamp. Over three days every team builds the **same RWA Launchpad** smart contract, adding one SEP layer per day. Admin operations (mint, whitelist, withdraw, pause) and user operations (invest, balance, transfer) are kept distinct on purpose — that split carries through to deploy scripts on Día 3.
 
 ## Prerequisites

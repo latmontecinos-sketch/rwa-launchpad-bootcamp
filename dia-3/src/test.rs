@@ -81,3 +81,50 @@ fn test_invest_not_whitelisted() {
     env.mock_all_auths();
     client.invest(&investor, &500);
 }
+
+fn funded_whitelisted_investor(
+    env: &Env,
+    admin: &Address,
+    payment_token: &Address,
+    client: &RwaLaunchpadClient<'_>,
+) -> Address {
+    let investor = Address::generate(env);
+    StellarAssetClient::new(env, payment_token).mint(&investor, &1_000);
+    env.mock_all_auths();
+    client.set_whitelist(admin, &investor, &true);
+    investor
+}
+
+#[test]
+fn test_invest_100_fails_and_500_works() {
+    let env = Env::default();
+    let (admin, payment_token, contract_id, client) = setup_with_payment_token(&env);
+    let investor = funded_whitelisted_investor(&env, &admin, &payment_token, &client);
+    let token = TokenClient::new(&env, &payment_token);
+
+    assert_eq!(
+        client.try_invest(&investor, &100),
+        Err(Ok(Error::AmountTooLow.into()))
+    );
+    assert_eq!(client.balance(&investor), 0);
+    assert_eq!(token.balance(&investor), 1_000);
+    assert_eq!(token.balance(&contract_id), 0);
+
+    assert_eq!(client.invest(&investor, &500), 5);
+    assert_eq!(client.balance(&investor), 5);
+    assert_eq!(token.balance(&investor), 500);
+    assert_eq!(token.balance(&contract_id), 500);
+}
+
+#[test]
+fn test_invest_minimum_is_inclusive() {
+    let env = Env::default();
+    let (admin, payment_token, _contract_id, client) = setup_with_payment_token(&env);
+    let investor = funded_whitelisted_investor(&env, &admin, &payment_token, &client);
+
+    assert_eq!(
+        client.try_invest(&investor, &(MIN_INVESTMENT - 1)),
+        Err(Ok(Error::AmountTooLow.into()))
+    );
+    assert_eq!(client.invest(&investor, &MIN_INVESTMENT), 5);
+}
